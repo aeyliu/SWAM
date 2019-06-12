@@ -57,4 +57,6 @@ unless ( defined($target2db{$targetName}) ) {
     die "ERROR: Target name $targetName is not defined in $indexf";    
 }
 
+&forkExecWait("Rscript -e 'print(1)'");
+
 
