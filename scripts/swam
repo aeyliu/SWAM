@@ -1,0 +1,60 @@
+#!/usr/bin/perl -w
+
+use strict;
+use FindBin;
+use lib $FindBin::Bin;
+use hyunlib qw(forkExecWait);
+use wGetOptions qw(wGetOptions wpod2usage);
+
+my $indexf = "";
+my $targetName = "";
+my $targetExpr = "";
+my $targetGeno = "";
+my $outPrefix = "";
+my $predixcanPath = "PrediXcan.py";
+my $rscriptPath = "Rscript";
+my $sqlite3Path = "sqlite3";
+
+wGetOptions(
+    "-Smartly-Weighted Average across Multiple Tissues\nSee https://github.com/aeyliu/SWAM for more details",
+    "--Required Options",
+    "index=s",[\$indexf,"Index file containing the list of tissue-specific training models. Each line should have [TISSUE_NAME] [Path to PredictDB-formatted file"],
+    "name=s",[\$targetName, "Name of the target tissue. Must be included in the index file"],
+    "expr=s",[\$targetExpr, "Measured expression data for the target tissue (in PrediXcan format). First line has sample IDs, and from the second line [GENE_NAME] [EXPR_FOR_SAMPLE_1] [EXPR_FOR_SAMPLE_2] ..."],
+    "geno=s",[\$targetGeno, "Genotype files in gzipped dosage format in PrediXcan format"],
+    "out=s",[\$outPrefix, "Prefix of output files"],
+    "--Additional Options",
+    "PrediXcan-path=s",[\$predixcanPath,"Path to PrediXcan software tool"],
+    "Rscript-path=s",[\$rscriptPath,"Path to Rscript tool"],
+    "sqlite3-path=s",[\$sqlite3Path,"Path to sqlite3 tool"],
+    ) || wpod2usage(2);
+
+
+unless ( $indexf && $targetName && $targetExpr && $targetGeno && $outPrefix ) {
+    print STDERR "ERROR: Missing required arguments. Please see the usage below\n";
+    wpod2usage();
+}
+
+unless ( -s $indexf ) {
+    die "ERROR: Index file $indexf does not exist or empty";
+}
+unless ( -s $targetExpr ) {
+    die "ERROR: Target Expression $targetExpr does not exist or empty";
+}
+unless ( -s $targetGeno ) {
+    die "ERROR: Target genotype $targetGeno does not exist or empty";
+}
+
+my %target2db = ();
+open(IN,$indexf) || die "Cannot open file\n";
+while(<IN>) {
+    my ($name,$dbf) = split;
+    $target2db{$name} = $dbf;
+}
+print STDERR "Loaded ".(scalar keys %target2db)." daatsets/tissues from $indexf\n";
+
+unless ( defined($target2db{$targetName}) ) {
+    die "ERROR: Target name $targetName is not defined in $indexf";    
+}
+
+
