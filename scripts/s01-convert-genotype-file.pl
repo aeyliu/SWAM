@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
+use FindBin;
+use wGetOptions
 use List::Util qw(sum);
 
 my $genotypes_file = $ARGV[0];

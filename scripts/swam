@@ -60,3 +60,4 @@ unless ( defined($target2db{$targetName}) ) {
 &forkExecWait("Rscript -e 'print(1)'");
 # You may need to run something like &forkExecWait("perl $FindBin::Bin/s01-script-name --argument")
 
+&forkExecWait("$rscriptpath $FindBin::Bin/s01-convert-genotype-file.pl ")

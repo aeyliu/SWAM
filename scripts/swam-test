@@ -1,0 +1,88 @@
+#!/usr/bin/perl -w
+
+use strict;
+use Cwd qw(cwd);
+use FindBin;
+use lib $FindBin::Bin;
+use hyunlib qw(forkExecWait);
+use wGetOptions qw(wGetOptions wpod2usage);
+
+my $indexf = "";
+my $directory = "";
+my $targetName = "";
+my $targetExpr = "";
+my $targetGeno = "";
+my $outPrefix = "";
+my $prediXcanPath = "PrediXcan.py";
+my $rscriptPath = "Rscript";
+my $sqlite3Path = "sqlite3";
+my $parallel = 1;
+
+wGetOptions(
+    "-Smartly-Weighted Average across Multiple Tissues\nSee https://github.com/aeyliu/SWAM for more details",
+    "--Required Options",
+    "index=s",[\$indexf,"Index file containing the list of tissue-specific training models. Each line should have [TISSUE_NAME] [Path to PredictDB-formatted file"],
+    "directory=s",[\$directory,"Directory containing all prediction models to be used  by SWAM. If index file is not specified, will be generated from directory"],
+    "name=s",[\$targetName, "Name of the target tissue. Must be included in the index file"],
+    "expr=s",[\$targetExpr, "Measured expression data for the target tissue (in PrediXcan format). First line has sample IDs, and from the second line [GENE_NAME] [EXPR_FOR_SAMPLE_1] [EXPR_FOR_SAMPLE_2] ..."],
+    "geno=s",[\$targetGeno, "Genotype files in gzipped dosage format in PrediXcan format"],
+    "out=s",[\$outPrefix, "Prefix of output files"],
+    "--Additional Options",
+    "num-cpu=s",[\$parallel,"Assign number of CPUs for parallelization"],
+    "PrediXcan-path=s",[\$prediXcanPath,"Path to PrediXcan software tool"],
+    "Rscript-path=s",[\$rscriptPath,"Path to Rscript tool"],
+    "sqlite3-path=s",[\$sqlite3Path,"Path to sqlite3 tool"],
+    ) || wpod2usage(2);
+
+
+unless ( $targetName && $targetExpr && $targetGeno && $outPrefix ) {
+    print STDERR "ERROR: Missing required arguments. Please see the usage below\n";
+    wpod2usage();
+}
+
+
+#get the prefix/directory 
+my @outArray = split(/\//,$outPrefix);
+$outPrefix = $outArray[$#outArray]; #output prefix
+my $outDir = "";
+my $wd;
+
+if($#outArray > 0) {
+    $outDir = join("/", @outArray[0 .. $#outArray-1]);
+}
+if($outDir eq "") {
+    $wd = cwd;
+    $outDir = "$wd/$outDir"; #set current directory if filepath is not specified
+}
+
+unless( -d $outDir ) {
+    &forkExecWait("mkdir $outDir");
+}
+unless( -d "$outDir/cov" ) {
+    &forkExecWait("mkdir $outDir/cov");
+}
+unless( -d "$outDir/intermediate" ) {
+    &forkExecWait("mkdir $outDir/intermediate");
+}
+unless( -e "$outDir/model" ) {
+    &forkExecWait("mkdir $outDir/model");
+}
+
+#generate index file if file is not provided
+my $size = -s $directory;
+print "$size\n";
+unless ( -s $indexf ) {
+    if( -s $directory ) { #if index file is not specified, but directory is given, generate index file
+        &forkExecWait("perl $FindBin::Bin/s01-generate-index.pl $directory $outDir");
+	$indexf = "$outDir/index.txt";
+    }
+    unless ( -s $directory ) {
+
+        die "ERROR: Index file $indexf and directory $directory both do not exist or empty";
+    }
+}
+
+#call prediXcan from index file
+&forkExecWait("awk \'{print \"--weights \"\$2\" --output_dir $outDir/intermediate/\"\$1\ }\' $indexf | xargs -I {} -P $parallel sh -c \"$prediXcanPath --predict --dosages $targetGeno --samples $targetGeno/samples.txt {} --linear\" "); 
+
+
