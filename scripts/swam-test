@@ -59,14 +59,19 @@ unless( -d $outDir ) {
     &forkExecWait("mkdir $outDir");
 }
 unless( -d "$outDir/cov" ) {
-    &forkExecWait("mkdir $outDir/cov");
+    &forkExecWait("mkdir $outDir/cov"); #covariance matrices (used for metaXcan)
 }
 unless( -d "$outDir/intermediate" ) {
-    &forkExecWait("mkdir $outDir/intermediate");
+    &forkExecWait("mkdir $outDir/intermediate"); #single-tissue predictions
 }
-unless( -e "$outDir/model" ) {
-    &forkExecWait("mkdir $outDir/model");
+unless( -d "$outDir/model" ) {
+    &forkExecWait("mkdir $outDir/model"); #SWAM model
 }
+
+unless( -d "$outDir/info" ) {
+    &forkExecWait("mkdir $outDir/info"); #single-tissue model information (extra and weights table)
+}
+
 
 #generate index file if file is not provided
 my $size = -s $directory;
@@ -83,6 +88,18 @@ unless ( -s $indexf ) {
 }
 
 #call prediXcan from index file
-&forkExecWait("awk \'{print \"--weights \"\$2\" --output_dir $outDir/intermediate/\"\$1\ }\' $indexf | xargs -I {} -P $parallel sh -c \"$prediXcanPath --predict --dosages $targetGeno --samples $targetGeno/samples.txt {} --linear\" "); 
+#&forkExecWait("awk \'{print \"--weights \"\$2\" --output_dir $outDir/intermediate/\"\$1\ }\' $indexf | xargs -I {} -P $parallel sh -c \"$prediXcanPath --predict --dosages $targetGeno --samples $targetGeno/samples.txt {} --linear\" "); 
+
+#extract information about prediction models and save for R to read
+#extract weights
+&forkExecWait("awk '{print \$2\"* \\\\\\047SELECT * from weights\\\\\\047 > $outDir/info/\"\$1\".weights.dump \"}' $indexf | xargs -I {} sh -c \"$sqlite3Path {} \" ");
+
+#extract extra information
+&forkExecWait("awk '{print \$2\"* \\\\\\047SELECT * from extra\\\\\\047 > $outDir/info/\"\$1\".extra.dump \"}' $indexf | xargs -I {} sh -c \"$sqlite3Path {} \" ");
+
+
+#R calculates the weights based on the measured expression and predicted expression levels
+
+&forkExecWait("Rscript $FindBin::Bin/s03-calc-weights.R $targetExpr $outDir/intermediate/ $targetName $outDir/info/ $outDir/index.txt $outDir/model/swam.weights.txt");
 
 
