@@ -1,8 +1,0 @@
-/net/snowwhite/home/aeyliu/pima/prediXcan/git/SWAM/scripts/swam-test \
---directory /net/snowwhite/home/aeyliu/pima/prediXcan/git/example/GTEx-V6p-1KG-2016-11-16 \
---name TW_Cells_EBV-transformed_lymphocytes_0.5_1KG \
---expr /net/snowwhite/home/aeyliu/pima/prediXcan/git/example/Cells_EBV-transformed_lymphocytes_Analysis.expr.txt \
---geno /net/snowwhite/home/aeyliu/pima/prediXcan/git/example/genotypes \
---PrediXcan-path /net/snowwhite/home/aeyliu/pima/prediXcan/PrediXcan.py \
---num-cpu 10 \
---out /net/snowwhite/home/aeyliu/pima/prediXcan/git/SWAM/test/lcl-test2/lcl
