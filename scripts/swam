@@ -104,6 +104,6 @@ unless ( -s $indexf ) {
 
 &forkExecWait("perl $FindBin::Bin/s04a-generate-tables.pl $outDir/model/$outPrefix.swam.weights.txt $outDir/model/$outPrefix.swam.cv");
 &forkExecWait("perl $FindBin::Bin/s04b-generate-db-script.pl $outDir/model/$outPrefix.swam.cv $outDir/model/$outPrefix.swam.cv.weights");
-&forkExecWait("$sqlite3path -init $outDir/model/$outPrefix.swam.cv.weights.sql $outDir/model/$outPrefix.swam.cv.weights.db \"\"");
-&forkExecWait("$sqlite3path $outDir/model/$outPrefix.swam.cv.weights.db* \'SELECT * from weights\' > $outDir/model/$outPrefix.swam.cv.weights.dump");
+&forkExecWait("$sqlite3Path -init $outDir/model/$outPrefix.swam.cv.weights.sql $outDir/model/$outPrefix.swam.cv.weights.db \"\"");
+&forkExecWait("$sqlite3Path $outDir/model/$outPrefix.swam.cv.weights.db* \'SELECT * from weights\' > $outDir/model/$outPrefix.swam.cv.weights.dump");
 
