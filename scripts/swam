@@ -42,17 +42,32 @@ unless ( $targetName && $targetExpr && $targetGeno && $outPrefix ) {
 
 
 #get the prefix/directory 
-my @outArray = split(/\//,$outPrefix);
-$outPrefix = $outArray[$#outArray]; #output prefix
-my $outDir = "";
-my $wd;
+#my @outArray = split(/\//,$outPrefix);
+#$outPrefix = $outArray[$#outArray]; #output prefix
+my $outDir = $outPrefix;
+my $wd = cwd;
 
-if($#outArray > 0) {
-    $outDir = join("/", @outArray[0 .. $#outArray-1]);
-}
-if($outDir eq "") {
-    $wd = cwd;
+#if($#outArray > 0) {
+#    $outDir = join("/", @outArray[0 .. $#outArray-1]);
+#}
+
+unless($outDir =~ /^\// ) {
     $outDir = "$wd/$outDir"; #set current directory if filepath is not specified
+}
+$outDir =~ s/\/$// if ( $outDir =~ /\/$/ ); # strip out trailing slash
+
+unless($directory =~ /^\// ) {
+    $directory = "$wd/$directory"; #set current directory if filepath is not specified    
+}
+$directory =~ s/\/$// if ( $directory =~ /\/$/ ); # strip out trailing slash
+
+unless($targetGeno =~ /^\// ) {
+    $targetGeno = "$wd/$targetGeno"; #set current directory if filepath is not specified    
+}
+$targetGeno =~ s/\/$// if ( $targetGeno =~ /\/$/ ); # strip out trailing slash
+
+unless($targetExpr =~ /^\// ) {
+    $targetExpr = "$wd/$targetExpr"; #set current directory if filepath is not specified    
 }
 
 unless( -d $outDir ) {
