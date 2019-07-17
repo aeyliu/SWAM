@@ -102,8 +102,8 @@ unless ( -s $indexf ) {
 
 &forkExecWait("Rscript $FindBin::Bin/s03-calc-weights.R $targetExpr $outDir/intermediate/ $targetName $outDir/info/ $outDir/index.txt $outDir/model/$outPrefix.swam.weights.txt");
 
-&forkExecWait("perl $FindBin::Bin/s04a-generate-tables.pl $outDir/model/$outPrefix.swam.weights.txt $outDir/model/$outPrefix.swam.cv");
-&forkExecWait("perl $FindBin::Bin/s04b-generate-db-script.pl $outDir/model/$outPrefix.swam.cv $outDir/model/$outPrefix.swam.cv.weights");
-&forkExecWait("$sqlite3path -init $outDir/model/$outPrefix.swam.cv.weights.sql $outDir/model/$outPrefix.swam.cv.weights.db \"\"");
-&forkExecWait("$sqlite3path $outDir/model/$outPrefix.swam.cv.weights.db* \'SELECT * from weights\' > $outDir/model/$outPrefix.swam.cv.weights.dump");
+&forkExecWait("perl $FindBin::Bin/s04a-generate-tables.pl $outDir/model/$outPrefix.swam.weights.txt $outDir/index.txt $outDir/info $FindBin::Bin/ensg.map.txt $outDir/model/$outPrefix.swam.cv");
+&forkExecWait("perl $FindBin::Bin/s04b-generate-db-script.pl $outDir/model/$outPrefix.swam.cv $outDir/model/$outPrefix.swam.cv.weights $FindBin::Bin/sql-template.txt");
+&forkExecWait("$sqlite3Path -init $outDir/model/$outPrefix.swam.cv.weights.sql $outDir/model/$outPrefix.swam.cv.weights.db \"\"");
+&forkExecWait("$sqlite3Path $outDir/model/$outPrefix.swam.cv.weights.db* \'SELECT * from weights\' > $outDir/model/$outPrefix.swam.cv.weights.dump");
 

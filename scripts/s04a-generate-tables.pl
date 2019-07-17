@@ -4,12 +4,15 @@ use strict;
 #this program generates the weights table for the .db aggregate predicted expression
 
 my $correlations = $ARGV[0];
-my $out = $ARGV[1];
+my $index_path = $ARGV[1];
+my $db_path = $ARGV[2];
+my $ensg_map = $ARGV[3];
+my $out = $ARGV[4];
 
-my $index_path = "/net/snowwhite/home/aeyliu/pima/prediXcan/GTEx-V6p-1KG-2016-11-16/index.txt";
+#my $index_path = "/net/snowwhite/home/aeyliu/pima/prediXcan/GTEx-V6p-1KG-2016-11-16/index.txt";
 #my $correlations = "/net/snowwhite/home/aeyliu/pima/prediXcan/gtex-predictions/correlations.fdr.weighted.txt";
-my $ensg_map = "/net/snowwhite/home/aeyliu/pima/prediXcan/SWAM-pipeline/utilities/ensg.map.txt";
-my $db_path = "/net/snowwhite/home/aeyliu/pima/prediXcan/GTEx-V6p-1KG-2016-11-16";
+#my $ensg_map = "/net/snowwhite/home/aeyliu/pima/prediXcan/SWAM-pipeline/utilities/ensg.map.txt";
+#my $db_path = "/net/snowwhite/home/aeyliu/pima/prediXcan/GTEx-V6p-1KG-2016-11-16";
 
 my %emap = ();
 open(ENSGMAP, "cat $ensg_map|") || die "Cannot open file\n";
@@ -47,7 +50,8 @@ my $i = 1;
 while(<INDEX>)
 {
  chomp;
- my $tissue = $_;
+ my @tissueLine = split;
+ my $tissue = $tissueLine[0];
  print "Processing tissue $tissue\n";
  my $weights_file = "$db_path/$tissue.weights.dump";
  open(WEIGHTS,"cat $weights_file |") || die "Cannot open file\n";

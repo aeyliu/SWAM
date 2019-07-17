@@ -1,0 +1,54 @@
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
+CREATE TABLE construction
+( "chr" INTEGER,
+        "cv.seed" INTEGER
+);
+INSERT INTO "construction" VALUES(10,1509);
+INSERT INTO "construction" VALUES(11,985);
+INSERT INTO "construction" VALUES(12,1413);
+INSERT INTO "construction" VALUES(13,1714);
+INSERT INTO "construction" VALUES(14,1108);
+INSERT INTO "construction" VALUES(15,566);
+INSERT INTO "construction" VALUES(16,1691);
+INSERT INTO "construction" VALUES(17,481);
+INSERT INTO "construction" VALUES(18,610);
+INSERT INTO "construction" VALUES(19,988);
+INSERT INTO "construction" VALUES(1,808);
+INSERT INTO "construction" VALUES(20,1830);
+INSERT INTO "construction" VALUES(21,488);
+INSERT INTO "construction" VALUES(22,817);
+INSERT INTO "construction" VALUES(2,1390);
+INSERT INTO "construction" VALUES(3,1216);
+INSERT INTO "construction" VALUES(4,1351);
+INSERT INTO "construction" VALUES(5,614);
+INSERT INTO "construction" VALUES(6,1542);
+INSERT INTO "construction" VALUES(7,1392);
+INSERT INTO "construction" VALUES(8,535);
+INSERT INTO "construction" VALUES(9,568);
+CREATE TABLE sample_info
+( "n.samples" INTEGER
+);
+INSERT INTO "sample_info" VALUES(114);
+CREATE TABLE extra
+( "gene" TEXT,
+        "genename" TEXT,
+        "n.snps.in.model" INTEGER
+);
+CREATE TABLE weights
+( "rsid" TEXT,
+        "gene" TEXT,
+        "weight" REAL,
+        "ref_allele" TEXT,
+        "eff_allele" TEXT
+);
+
+
+
+
+CREATE INDEX extra_gene ON extra (gene);
+CREATE INDEX weights_rsid ON weights (rsid);
+CREATE INDEX weights_gene ON weights (gene);
+CREATE INDEX weights_rsid_gene ON weights (rsid, gene);
+COMMIT;
+
