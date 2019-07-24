@@ -8,11 +8,6 @@ my $weights = "$in.weights.txt";
 my $extra = "$in.extra.txt";
 
 my $template = $ARGV[2];
-
-#my $template = "/net/snowwhite/home/aeyliu/pima/prediXcan/SWAM-pipeline/utilities/sql-template.txt";
-#my $extra = "/net/snowwhite/home/aeyliu/pima/prediXcan/meta-TWAS-pipeline/lcl.emp.extra.txt";
-#my $weights = "/net/snowwhite/home/aeyliu/pima/prediXcan/meta-TWAS-pipeline/predicted_expression.fdr.weights.neg.txt";
-
 open(EXTRA,"cat $extra|") || die "Cannot open file\n";
 
 my %ensg_reg = ();

@@ -4,5 +4,6 @@
 --expr /net/snowwhite/home/aeyliu/pima/prediXcan/git/SWAM/examples/sample/Cells_EBV-transformed_lymphocytes_Analysis.chr22.expr.txt \
 --geno /net/snowwhite/home/aeyliu/pima/prediXcan/git/SWAM/examples/sample/genotypes \
 --PrediXcan-path /net/snowwhite/home/aeyliu/pima/prediXcan/PrediXcan.py \
---num-cpu 10 \
---out /net/snowwhite/home/aeyliu/pima/prediXcan/git/SWAM/examples/lcl2/lcl
+--num-cpu 44 \
+--out /net/snowwhite/home/aeyliu/pima/prediXcan/git/SWAM/examples/lcl
+
