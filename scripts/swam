@@ -16,8 +16,10 @@ my $outPrefix = "";
 my $prediXcanPath = "PrediXcan.py";
 my $rscriptPath = "Rscript";
 my $sqlite3Path = "sqlite3";
-my $keep = "F";
+my $keep = "";
 my $parallel = 1;
+my $calCov = "";
+#my $formatf = "";
 
 wGetOptions(
     "-Smartly-Weighted Average across Multiple Tissues\nSee https://github.com/aeyliu/SWAM for more details",
@@ -33,7 +35,8 @@ wGetOptions(
     "PrediXcan-path=s",[\$prediXcanPath,"Path to PrediXcan software tool"],
     "Rscript-path=s",[\$rscriptPath,"Path to Rscript tool"],
     "sqlite3-path=s",[\$sqlite3Path,"Path to sqlite3 tool"],
-    "keep-files=s",[\$keep,"Option to keep intermediate files"],
+    "keep-files",[\$keep,"Option to keep intermediate files"],
+    "cal-cov",[\$calCov,"Calculate covariate matrix"],
     ) || wpod2usage(2);
 
 
@@ -103,34 +106,43 @@ unless ( -s $indexf ) {
 &forkExecWait("awk \'{print \"--weights \"\$2\" --output_dir $outDir/intermediate/\"\$1\ }\' $indexf | xargs -I {} -P $parallel sh -c \"$prediXcanPath --predict --dosages $targetGeno --samples $targetGeno/samples.txt {} --linear\" "); 
 
 #extract information about prediction models and save for R to read
+&forkExecWait("$FindBin::Bin/s02-dump-information.pl $indexf $sqlite3Path $outDir/info");
+
 #extract weights
-&forkExecWait("awk '{print \$2\"* \\\\\\047SELECT * from weights\\\\\\047 > $outDir/info/\"\$1\".weights.dump \"}' $indexf | xargs -I {} sh -c \"$sqlite3Path {} \" ");
+#&forkExecWait("awk '{print \$2\"* \\\\\\047SELECT rsid, gene, weight, ref_allele, eff_allele from weights\\\\\\047 > $outDir/info/\"\$1\".weights.dump \"}' $indexf | xargs -I {} sh -c \"$sqlite3Path {} \" ");
 
 #extract extra information
-&forkExecWait("awk '{print \$2\"* \\\\\\047SELECT * from extra\\\\\\047 > $outDir/info/\"\$1\".extra.dump \"}' $indexf | xargs -I {} sh -c \"$sqlite3Path {} \" ");
+#&forkExecWait("awk '{print \$2\"* \\\\\\047SELECT gene, genename, n\\\\.snps\\\\.in\\\\.model from extra\\\\\\047 > $outDir/info/\"\$1\".extra.dump \"}' $indexf | xargs -I {} sh -c \"$sqlite3Path {} \" ");
 
+#check if column re-ordering is needed
+#if(-s $formatf) {
+#    &forkExecWait("perl $FindBin::Bin/u01-convert-db.pl $formatf $outDir/info $indexf");
+#}
+
+#build ensg/gene name map
 
 #R calculates the weights based on the measured expression and predicted expression levels
 
-&forkExecWait("Rscript $FindBin::Bin/s03-calc-weights.R $targetExpr $outDir/intermediate/ $targetName $outDir/info/ $outDir/index.txt $outDir/model/swam.weights.txt");
+&forkExecWait("Rscript $FindBin::Bin/s03-calc-weights.R $targetExpr $outDir/intermediate/ $targetName $outDir/info/ $indexf $outDir/model/swam.weights.txt $outDir/ensg.map.txt");
 
 
-&forkExecWait("perl $FindBin::Bin/s04a-generate-tables.pl $outDir/model/swam.weights.txt $outDir/index.txt $outDir/info $FindBin::Bin/ensg.map.txt $outDir/model/swam.cv");
+&forkExecWait("perl $FindBin::Bin/s04a-generate-tables.pl $outDir/model/swam.weights.txt $indexf $outDir/info $outDir/ensg.map.txt $outDir/model/swam.cv");
 &forkExecWait("perl $FindBin::Bin/s04b-generate-db-script.pl $outDir/model/swam.cv $outDir/model/swam.cv.weights $FindBin::Bin/sql-template.txt");
 &forkExecWait("$sqlite3Path -init $outDir/model/swam.cv.weights.sql $outDir/model/swam.cv.weights.db \"\"");
 &forkExecWait("$sqlite3Path $outDir/model/swam.cv.weights.db* \'SELECT * from weights\' > $outDir/model/swam.cv.weights.dump");
 
-&forkExecWait("seq 1 22 | xargs -I {} -P 22 bash -c \"perl $FindBin::Bin/s05-cal-cov.pl $outDir/model/swam.cv.weights.dump $targetGeno {} $outDir/cov/cov{}.txt\" ");
-&forkExecWait("gzip -r $outDir/cov");
-#cleanup files
-unless($keep eq "T")
-{
- &forkExecWait("rm -f -r $outDir/info");
- &forkExecWait("rm -f -r $outDir/intermediate");
- &forkExecWait("rm -f -r $outDir/model/swam.cv.extra.txt");
- &forkExecWait("rm -f -r $outDir/model/swam.cv.weights.dump");
- &forkExecWait("rm -f -r $outDir/model/swam.cv.weights.sql");
- &forkExecWait("rm -f -r $outDir/model/swam.cv.weights.txt");
- &forkExecWait("rm -f -r $outDir/model/swam.weights.txt");
+if($calCov eq 1) {
+    &forkExecWait("seq 1 22 | xargs -I {} -P 22 bash -c \"perl $FindBin::Bin/s05-cal-cov.pl $outDir/model/swam.cv.weights.dump $targetGeno {} $outDir/cov/cov{}.txt\" ");
+    &forkExecWait("gzip -r $outDir/cov");
+}
 
+#cleanup files
+unless($keep eq 1) {
+    &forkExecWait("rm -f -r $outDir/info");
+    &forkExecWait("rm -f -r $outDir/intermediate");
+    &forkExecWait("rm -f -r $outDir/model/swam.cv.extra.txt");
+    &forkExecWait("rm -f -r $outDir/model/swam.cv.weights.dump");
+    &forkExecWait("rm -f -r $outDir/model/swam.cv.weights.sql");
+    &forkExecWait("rm -f -r $outDir/model/swam.cv.weights.txt");
+    &forkExecWait("rm -f -r $outDir/model/swam.weights.txt");
 }

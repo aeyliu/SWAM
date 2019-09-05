@@ -14,7 +14,6 @@ args = commandArgs(trailingOnly=TRUE)
 #args[4] is the extracted model information
 #args[5] is index file
 #args[6] is output file location
-#args[7] is output for ensg map
 
 #args = vector(length=5)
 #args[1] = "/net/snowwhite/home/aeyliu/pima/prediXcan/git/example/Cells_EBV-transformed_lymphocytes_Analysis.expr.txt"
@@ -53,6 +52,7 @@ for(i in 1:length(tissue.names))
  pred.expr = read.table(path.pred,header=TRUE)
  expr.only = pred.expr[,c(-1,-2)]
  path.weights = paste(args[4],tissue.names[i],".extra.dump",sep="")
+ #path.weights = paste("/net/snowwhite/home/aeyliu/pima/prediXcan/GTEx-hapmap/",file.paths[i],".extra.dump",sep="")
  weights = read.table(path.weights,header=FALSE,sep="|") #weight is column 3 (V3)
  genes.temp = c(genes.temp,as.character(weights$V2))
  ensg.temp = c(ensg.temp,as.character(weights$V1))
@@ -84,23 +84,6 @@ in.expression = read.table(args[1],header=T)
 #need to process it so it's the same format as the predicted expression
 ensg.map = data.frame(ensg.temp,genes.temp)
 ensg.map = ensg.map[!duplicated(ensg.map),]
-ensg.dupes = which(duplicated(ensg.map[,1]))
-rm.index = NULL
-#need to resolve cases where there are multiple mappings to gene - take the most common gene mapping
-for(i in 1:length(ensg.dupes))
-{
- j = which(ensg.map[,1] == ensg.map[ensg.dupes[i],1])
- n.rep = vector(length=length(j))
- for(k in 1:length(j))
- {
-  n.rep[k] = length(which(genes.temp == as.character(ensg.map[j[k],2])))
- }
- rm.index = c(rm.index, j[-which.max(n.rep)])
-}
-if(length(rm.index)>0)
-{
- ensg.map=ensg.map[-rm.index,]
-}
 
 process.measured = function(measured.expr)
 {
@@ -112,9 +95,9 @@ process.measured = function(measured.expr)
  measured = measured.expr[which(measured.expr[,1]%in%overlap),]
  ensg = ensg.map[which(ensg.map$ensg%in%overlap),]
  
- measured = measured[order(as.character(measured[,1])),]
+ measured = measured [order(as.character(measured [,1])),]
  ensg = ensg[order(as.character(ensg$ensg)),]
- measured[,1] = ensg[,2]
+ measured [,1] = ensg[,2]
  measured = measured[order(measured[,1]),]
  measured.new = aggregate(measured[,2:dim(measured)[2]],list(measured[,1]),mean)
  measured.final = as.matrix(measured.new[,2:dim(measured.new)[2]])
@@ -203,7 +186,8 @@ for(i in 1:length(tissue.names))
 rownames(cv.matrix) = rownames(target.final)
 
 ###########################
-#calculate weights with inverse covariance matrix
+#nov 9, 2017
+#calculate weights with inverse covariance matrix, but add high value to the diagonal
 
 
 center.values = function(vec)
@@ -252,7 +236,7 @@ calc.gene.weights2 = function(gene="",values.list,target,index=NULL,diag.val=0,t
 
   #C = apply(D,2,center.values)
   C = apply(D,2,inv.norm)
-  C.cov = cor(C)
+  C.cov = cov(C)
   C.x = C.cov[-1,-1]+iden
   C.xy = C.cov[1,-1]
   H = ginv(C.x)
@@ -300,6 +284,5 @@ target.weights = replace(target.weights,target.weights<0,0)
 
 write.table(target.weights,args[6],quote=FALSE,sep="\t")
 
-write.table(ensg.map,args[7],quote=FALSE,sep="\t",row.names=F)
 
 

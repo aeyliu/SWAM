@@ -21,3 +21,5 @@ foreach my $file( @files )
  my $tissue = join(".", @tissueTemp);
  print OUT join("\t", $tissue,"$file\n");
 }
+
+close OUT;
