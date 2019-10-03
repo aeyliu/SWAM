@@ -24,9 +24,9 @@ while(<EXTRA>)
 {
  #next if(/NA/);
  chomp;
- #my ($ensg,$gene,$r2,$n_snps,$pv,$qv) = split;
- my ($ensg,$gene,$n_snps) = split; #the number of entries here have to match the template file
- $ensg_reg{$ensg} = "INSERT INTO \"extra\" VALUES(\'$ensg\',\'$gene\',$n_snps)\;";
+ my ($ensg,$gene,$r2,$n_snps,$pv,$qv) = split;
+ #my ($ensg,$gene,$n_snps) = split; #the number of entries here have to match the template file
+ $ensg_reg{$ensg} = "INSERT INTO \"extra\" VALUES(\'$ensg\',\'$gene\',\'$r2\',$n_snps,\'$pv\',\'$qv\')\;";
  print OUT "$ensg_reg{$ensg}\n";
 }
 

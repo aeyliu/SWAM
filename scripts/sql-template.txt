@@ -33,7 +33,10 @@ INSERT INTO "sample_info" VALUES(114);
 CREATE TABLE extra
 ( "gene" TEXT,
         "genename" TEXT,
-        "n.snps.in.model" INTEGER
+	"pred.perf.R2" REAL,
+        "n.snps.in.model" INTEGER,
+	"pred.perf.pval" REAL,
+	"pred.perf.qval" REAL
 );
 CREATE TABLE weights
 ( "rsid" TEXT,

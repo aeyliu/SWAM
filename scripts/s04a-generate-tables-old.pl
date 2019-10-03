@@ -61,12 +61,27 @@ while(<INDEX>)
    my $cor_temp = $gene_cor_tissue{$gene_temp}{$i};
    if(defined($out_hash_table_reg{$rs}{$ensg}))
    {
-    $out_hash_table_weight{$rs}{$ensg} += $weight * $gene_cor_tissue{$gene_temp}{$i}; #add in the weight for the SNP multiplied by the tissue weight 
+    if($cor_temp>0)
+    {
+     $out_hash_table_weight{$rs}{$ensg} += $weight * $gene_cor_tissue{$gene_temp}{$i}; #add in the weight for the SNP multiplied by the tissue weight 
+    }
+    else
+    {
+     $out_hash_table_weight{$rs}{$ensg} += $weight * 0;
+    }
    }
    unless(defined($out_hash_table_reg{$rs}{$ensg}))
    {
     $out_hash_table_reg{$rs}{$ensg} = 1;
-    $out_hash_table_weight{$rs}{$ensg} = $weight * $gene_cor_tissue{$gene_temp}{$i};
+    if($cor_temp>0)
+    {
+     $out_hash_table_weight{$rs}{$ensg} = $weight * $gene_cor_tissue{$gene_temp}{$i};
+    }
+    else
+    {
+     $out_hash_table_weight{$rs}{$ensg} = $weight * 0;
+
+    }
     $out_hash_table_a1{$rs}{$ensg} = $a1;
     $out_hash_table_a2{$rs}{$ensg} = $a2;
    }
