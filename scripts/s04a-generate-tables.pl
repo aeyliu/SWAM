@@ -10,12 +10,14 @@ my $ensg_map = $ARGV[3];
 my $out = $ARGV[4];
 
 my %emap = ();
+my %emap_version = (); #map ensg to preferred version #
 open(ENSGMAP, "cat $ensg_map|") || die "Cannot open file\n";
 while(<ENSGMAP>)
 {
  chomp;
- my ($ensg,$gene) = split;
- $emap{$ensg} = $gene;
+ my ($ensg,$gene,$ensg_nodot,$gene_dot) = split;
+ $emap{$ensg_nodot} = $gene;
+ $emap_version{$ensg_nodot} = $ensg;
 }
 close ENSGMAP;
 
@@ -54,8 +56,14 @@ while(<INDEX>)
  {
   my $line = $_;
   chomp($line);
-  my ($rs,$ensg,$weight,$a1,$a2) = split(/\|/,$line);
+  my ($rs,$ensg_temp,$weight,$a1,$a2) = split(/\|/,$line);
+
+  next unless($ensg_temp =~ /ENSG/);
+
+  my $ensg = (split(/\./,$ensg_temp))[0];
   my $gene_temp = $emap{$ensg};
+
+
   if(defined($gene_cor_tissue{$gene_temp}{$i}))
   {
    my $cor_temp = $gene_cor_tissue{$gene_temp}{$i};
@@ -95,7 +103,7 @@ while(<WTS>)
   unless($out_hash_table_weight{$rs}{$ensg} == 0)
   {
    $n_snps{$ensg}++;
-   print OUT join("\t", $rs,$ensg,$out_hash_table_weight{$rs}{$ensg},$out_hash_table_a1{$rs}{$ensg},$out_hash_table_a2{$rs}{$ensg});
+   print OUT join("\t", $rs,$emap_version{$ensg},$out_hash_table_weight{$rs}{$ensg},$out_hash_table_a1{$rs}{$ensg},$out_hash_table_a2{$rs}{$ensg});
    print OUT "\n";
   }
  }
@@ -107,7 +115,7 @@ close WTS;
 open(OUT2,">>$out.extra.txt") || die "Cannot open file\n";
 foreach my $key (keys %n_snps)
 {
- print OUT2 join("\t", $key , $emap{$key}, "0","$n_snps{$key}","0","0\n");
+ print OUT2 join("\t", $emap_version{$key} , $emap{$key}, "0","$n_snps{$key}","0","0\n");
 }
 
 close OUT2;

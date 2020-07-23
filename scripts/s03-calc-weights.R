@@ -18,10 +18,10 @@ args = commandArgs(trailingOnly=TRUE)
 
 #args = vector(length=5)
 #args[1] = "/net/snowwhite/home/aeyliu/pima/prediXcan/git/example/Cells_EBV-transformed_lymphocytes_Analysis.expr.txt"
-#args[2] = "/net/snowwhite/home/aeyliu/pima/prediXcan/git/SWAM/test/lcl-test/intermediate/"
+#args[2] = "/net/snowwhite/home/aeyliu/pima/prediXcan/git/test/lcl-test/intermediate/"
 #args[3] = "TW_Cells_EBV-transformed_lymphocytes_0.5_1KG"
-#args[4] = "/net/snowwhite/home/aeyliu/pima/prediXcan/git/SWAM/test/lcl-test/info/"
-#args[5] = "/net/snowwhite/home/aeyliu/pima/prediXcan/git/SWAM/test/lcl-test/index.txt"
+#args[4] = "/net/snowwhite/home/aeyliu/pima/prediXcan/git/test/lcl-test/info/"
+#args[5] = "/net/snowwhite/home/aeyliu/pima/prediXcan/git/test/lcl-test/index.txt"
 
 inv.norm = function(z)
 {
@@ -82,48 +82,91 @@ for(i in 1:length(tissue.names))
 in.expression = read.table(args[1],header=T)
 
 #need to process it so it's the same format as the predicted expression
+
+
 ensg.map = data.frame(ensg.temp,genes.temp)
+
+#subset ENSG map to contain only those with ENSG symbols (gene symbols should be separated)
+ensg.index = grep("ENSG",ensg.map$ensg.temp)
+gene.index = which(!(1:dim(ensg.map)[1])%in%ensg.index)
+
+ensg.map = ensg.map[ensg.index,]
+
+#fix version ID differences
+ensg.map.ids = strsplit(as.character(ensg.map$ensg.temp),"[.]")
+ensg.map.ids = unlist(ensg.map.ids)
+ensg.map.ids = ensg.map.ids[seq(1,length(ensg.map.ids),by=2)]
+
+ensg.map$ensg.id = ensg.map.ids
+
+ensg.map.full = ensg.map #full mapping with duplicates included
+
 ensg.map = ensg.map[!duplicated(ensg.map),]
-ensg.dupes = which(duplicated(ensg.map[,1]))
+ensg.dupes = which(duplicated(ensg.map[,3]))
 rm.index = NULL
 #need to resolve cases where there are multiple mappings to gene - take the most common gene mapping
-for(i in 1:length(ensg.dupes))
+if(length(ensg.dupes)>0)
 {
- j = which(ensg.map[,1] == ensg.map[ensg.dupes[i],1])
- n.rep = vector(length=length(j))
- for(k in 1:length(j))
+ for(i in 1:length(ensg.dupes))
  {
-  n.rep[k] = length(which(genes.temp == as.character(ensg.map[j[k],2])))
+  j = which(ensg.map[,3] == ensg.map[ensg.dupes[i],3])
+  if(length(unique(sort(as.character(ensg.map$genes.temp[j]))))>1) #check if ensemble maps to multiple genes
+  {
+   n.rep = vector(length=length(j))
+   for(k in 1:length(j))
+   {
+    unique.gene = as.character(ensg.map[j[k],2])
+    n.rep[k] = length(intersect(which(ensg.map.full$genes.temp==unique.gene), which(ensg.map.full$ensg.id==ensg.map$ensg.id[j[k]])))
+   }
+   rm.index = c(rm.index, j[-which.max(n.rep)])
+  }
+  if(length(unique(sort(as.character(ensg.map$genes.temp[j]))))==1) #maps to one gene, so it must be differing ensemble versions
+  {
+   n.rep = vector(length=length(j))
+   for(k in 1:length(j))
+   {
+    unique.ensg = as.character(ensg.map[j[k],1])
+    n.rep[k] = length(intersect(which(ensg.map.full$ensg.temp==unique.ensg), which(ensg.map.full$ensg.id==ensg.map$ensg.id[j[k]])))
+   }
+   rm.index = c(rm.index, j[-which.max(n.rep)])
+  }
  }
- rm.index = c(rm.index, j[-which.max(n.rep)])
 }
+
 if(length(rm.index)>0)
 {
  ensg.map=ensg.map[-rm.index,]
 }
 
-process.measured = function(measured.expr)
+
+
+ensg.map$genes.dot = gsub("[[:punct:]]",".",ensg.map$genes.temp) #replace all punctuation in genes with dot, save original name
+
+process.measured = function(measured.expr,ensg.map)
 {
  ids.temp = strsplit(as.character(measured.expr$Id),"[.]")
  ids.temp = unlist(ids.temp)
  ids.temp = ids.temp[seq(1,length(ids.temp),by=2)]
 
- overlap = intersect(measured.expr[,1],ensg.map$ensg)
- measured = measured.expr[which(measured.expr[,1]%in%overlap),]
- ensg = ensg.map[which(ensg.map$ensg%in%overlap),]
+ measured.expr$Id= ids.temp
+  
+ overlap = intersect(measured.expr$Id,ensg.map$ensg.id)
+ measured = measured.expr[which(measured.expr$Id%in%overlap),]
+ ensg = ensg.map[which(ensg.map$ensg.id%in%overlap),]
  
- measured = measured[order(as.character(measured[,1])),]
- ensg = ensg[order(as.character(ensg$ensg)),]
+ measured = measured[order(as.character(measured$Id)),]
+ ensg = ensg[order(as.character(ensg$ensg.id)),]
  measured[,1] = ensg[,2]
  measured = measured[order(measured[,1]),]
  measured.new = aggregate(measured[,2:dim(measured)[2]],list(measured[,1]),mean)
  measured.final = as.matrix(measured.new[,2:dim(measured.new)[2]])
  rownames(measured.final) = as.character(measured.new[,1])
+ rownames(measured.final) = gsub("[[:punct:]]",".",rownames(measured.final)) #change all punctuation to dot
  colnames(measured.final) = gsub("[.]","-",colnames(measured.final))
  return(measured.final)
 }
 
-in.final = process.measured(in.expression)
+in.final = process.measured(in.expression,ensg.map)
 
 
 #############
@@ -152,15 +195,10 @@ calc.tissue.values = function(expr.pred,expr.target)
  extra.matrix = matrix(nrow = length(extra.genes),ncol=dim(expr.pred)[2])
  rownames(extra.matrix) = extra.genes
  colnames(extra.matrix) = colnames(expr.pred)
- #expr.pred = t(apply(expr.pred,1,inv.norm))
  
  expr.pred.df = rbind(expr.pred,extra.matrix)
  expr.pred.df = as.matrix(expr.pred.df[order(rownames(expr.pred.df)),])
- #expr.target = expr.target[order(rownames(expr.target)),]
- #expr.target = as.matrix(expr.target)
- #expr.target.int = t(apply(expr.target,1,inv.norm))
- #tissue.residual.matrix = expr.target.int - expr.pred.df
-
+ rownames(expr.pred.df) = gsub("[[:punct:]]",".",rownames(expr.pred.df))
  return(expr.pred.df)
 }
 
@@ -190,6 +228,7 @@ for(i in 1:length(tissue.names))
   wts.temp = wts.temp[-which(duplicated(wts.temp[,1])),]
  }
 
+ wts.temp$V2 = gsub("[[:punct:]]",".",wts.temp$V2)
  overlap.temp = intersect(genes.temp,wts.temp$V2)
  extra.temp = genes.temp[which(!genes.temp%in%overlap.temp)]
  dummy.df = data.frame(extra.temp,rep("NA",length(extra.temp)))
@@ -296,6 +335,13 @@ for(i in 1:dim(tissue.values[[1]])[1])
 
 rownames(target.weights) = rownames(tissue.values[[1]])
 target.weights = replace(target.weights,target.weights<0,0)
+
+#change names back to original
+ensg.map.temp = ensg.map[which(as.character(ensg.map$genes.dot)%in%rownames(target.weights)),]
+ensg.map.temp = ensg.map.temp[!duplicated(ensg.map.temp$genes.temp),]
+ensg.map.temp = ensg.map.temp[order(ensg.map.temp$genes.dot),]
+target.weights = target.weights[order(rownames(target.weights)),]
+rownames(target.weights) = as.character(ensg.map.temp$genes.temp)
 
 write.table(target.weights,args[6],quote=FALSE,sep="\t")
 
