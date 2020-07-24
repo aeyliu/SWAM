@@ -12,7 +12,7 @@ To use SWAM, you need to have the following tools installed in your system.
 * `perl` (version 5 or later recommended)
 * `R` (version 3.4 or later recommended)
 * `htslib` : The binary `tabix` should be include in your `$PATH`. Type `tabix` in your command line to check.
-* `prediXcan` : The software `prediXcan` can be downlaoded from https://github.com/hakyimlab/PrediXcan
+* `prediXcan` : The software `prediXcan` can be downloaded from https://github.com/hakyimlab/PrediXcan
 * `sqlite` : (version 3 or later recommended)
 
 
