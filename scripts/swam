@@ -16,6 +16,7 @@ my $outPrefix = "";
 my $prediXcanPath = "PrediXcan.py";
 my $rscriptPath = "Rscript";
 my $sqlite3Path = "sqlite3";
+my $tabixPath = "tabix";
 my $keep = "";
 my $parallel = 1;
 my $calCov = "";
@@ -35,6 +36,7 @@ wGetOptions(
     "PrediXcan-path=s",[\$prediXcanPath,"Path to PrediXcan software tool"],
     "Rscript-path=s",[\$rscriptPath,"Path to Rscript tool"],
     "sqlite3-path=s",[\$sqlite3Path,"Path to sqlite3 tool"],
+    "tabix-path=s",[\$tabixPath,"Path to tabix tool"],
     "keep-files",[\$keep,"Option to keep intermediate files"],
     "cal-cov",[\$calCov,"Calculate covariate matrix"],
     ) || wpod2usage(2);
