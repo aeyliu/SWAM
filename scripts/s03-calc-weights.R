@@ -1,11 +1,5 @@
 library(MASS)
 
-#September 13, 2017
-#this script is to calculate the weights as per the theory derived for the paper
-#the result is as follows:
-#for each gene
-#must first orthogonalize residual matrix such that E[(Y-Yi)(Y-Yj)] = 0 for all tissues
-#weights = E[(Y-Y2)^2...(Y-Yn)^2)] 
 
 args = commandArgs(trailingOnly=TRUE)
 #args[1] is the location of the measured expression
@@ -17,11 +11,11 @@ args = commandArgs(trailingOnly=TRUE)
 #args[7] is output for ensg map
 
 #args = vector(length=5)
-#args[1] = "/net/snowwhite/home/aeyliu/pima/prediXcan/git/example/Cells_EBV-transformed_lymphocytes_Analysis.expr.txt"
-#args[2] = "/net/snowwhite/home/aeyliu/pima/prediXcan/git/test/lcl-test/intermediate/"
+#args[1] = "/net/snowwhite/home/aeyliu/pima/prediXcan/git/SWAM/examples/sample/Cells_EBV-transformed_lymphocytes_Analysis.chr22.expr.txt"
+#args[2] = "/net/snowwhite/home/aeyliu/pima/prediXcan/git/SWAM/examples/lcl/intermediate/"
 #args[3] = "TW_Cells_EBV-transformed_lymphocytes_0.5_1KG"
-#args[4] = "/net/snowwhite/home/aeyliu/pima/prediXcan/git/test/lcl-test/info/"
-#args[5] = "/net/snowwhite/home/aeyliu/pima/prediXcan/git/test/lcl-test/index.txt"
+#args[4] = "/net/snowwhite/home/aeyliu/pima/prediXcan/git/SWAM/examples/lcl/info/"
+#args[5] = "/net/snowwhite/home/aeyliu/pima/prediXcan/git/SWAM/examples/lcl/index.txt"
 
 inv.norm = function(z)
 {
@@ -215,12 +209,14 @@ for(i in 1:length(tissue.names))
 
 ##########
 #now get the tissue-specific cv prediction accuracy for all tissues
+oldw <- getOption("warn")
+
+options(warn = -1)
 
 cv.matrix = matrix(nrow=dim(target.final)[1],ncol = length(tissue.names))
 
 for(i in 1:length(tissue.names))
 {
- #print(paste("Processing... ", i, " of ", length(tissue.names),sep="")) #no need, it's fast
  genes.temp = rownames(target.final)
  wts.temp = predicted.extra[[i]][,c(2,3)]
  if(sum(duplicated(wts.temp[,1]))>0)
@@ -239,6 +235,8 @@ for(i in 1:length(tissue.names))
  cv.matrix[,i] = as.numeric(as.character(wts.out[,2]))
 }
 rownames(cv.matrix) = rownames(target.final)
+
+options(warn = oldw)
 
 ###########################
 #calculate weights with inverse covariance matrix

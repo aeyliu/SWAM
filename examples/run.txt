@@ -1,3 +1,4 @@
+
 /net/snowwhite/home/aeyliu/pima/prediXcan/git/SWAM/scripts/swam \
 --directory /net/snowwhite/home/aeyliu/pima/prediXcan/git/SWAM/examples/sample/GTEx-V6p-1KG-2016-11-16 \
 --name TW_Cells_EBV-transformed_lymphocytes_0.5_1KG \
