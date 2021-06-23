@@ -52,8 +52,8 @@ ENSG00000069998.8     -1.35973738393861      0.640666889919105      -1.008856461
 ```
 
 ### Running SWAM (example)
-* An example to run SWAM is included in the ./SWAM/examples folder
-* Example of input files can be examined in the ./SWAM/examples/sample folder
+* An example to run SWAM is included in the /SWAM/examples folder
+* Example of input files can be examined in the /SWAM/examples/sample folder
 * To run the example, simply replace {} with the directory where you cloned this repository
 * Also remember to specify the correct prediXcan installation path
 ```
@@ -67,10 +67,55 @@ ENSG00000069998.8     -1.35973738393861      0.640666889919105      -1.008856461
 --out {}/SWAM/examples/lcl
 
 ```
+* To run SWAM, either --directory or --index file must be specified (either are fine)
+* The file format for the index file can be examined in the output {}/SWAM/examples/lcl/index.txt, and contains two columns: first column is the name of each tissue, and second column is the file path of its corresponding prediction model
 
+### Commands
+Current list of commands for SWAM:
 
+* _--index_
 
-## Frequently Asked Questions (FAQs)
+  Index file containing the list of tissue-specific training models. Each line should have two columns: 1) Tissue name and 2) file path for prediction model
+* _--directory_
 
+  Directory containing all prediction models to be used  by SWAM. If index file is not specified, will be generated automatically
+* _--name_
 
+  Name of the target tissue. Must be included in the index file
+* _--expr_
+
+  Measured expression data for the target tissue, see input files for further details
+* _--geno_
+
+  Genotype files in gzipped dosage format, see input files for further details
+* _--out_
+
+  Prefix of output files
+
+Additional options:
+* _--num-cpu_
+  
+  Assign number of CPUs for parallelization (this will be helpful when calculating covariance file)
+* _--PrediXcan-path_
+
+  Path to PrediXcan software tool
+* _--sqlite3-path_
+
+  Path to sqlite3 software tool
+* _--Rscript-path_
+
+  Path to Rscript software tool
+* _--tabix-path_
+
+  Path to tabix software tool
+* _--keep-files_
+
+  Option to keep intermediate files
+* _--cal-cov_
+
+  Calculate covariate matrix, which is needed for metaXcan
 ## Citing SWAM
+
+* Our paper is currently in pre-print and can be found at: [Link](https://www.biorxiv.org/content/10.1101/2021.05.04.442575v1)
+
+
