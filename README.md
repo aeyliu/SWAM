@@ -1,4 +1,4 @@
-# # SWAM - Smartly weighted averaging across multiple tissues
+# SWAM - Smartly weighted averaging across multiple tissues
 
 ## Overview
 
@@ -57,15 +57,18 @@ ENSG00000069998.8     -1.35973738393861      0.640666889919105      -1.008856461
 * To run the example, simply replace {} with the directory where you cloned this repository
 * Also remember to specify the correct prediXcan installation path
 ```
-{}/SWAM/scripts/swam \
---directory {}/SWAM/examples/sample/GTEx-V6p-1KG-2016-11-16 \
+## Modify these environment variables to conform your settings
+export SWAMDIR=/path/to/SWAM
+export PRDXDIR=/path/to/PrediXcan
+## Run this command to run example code
+${SWAMDIR}/scripts/swam \
+--directory ${SWAMDIR}/examples/sample/GTEx-V6p-1KG-2016-11-16 \
 --name TW_Cells_EBV-transformed_lymphocytes_0.5_1KG \
---expr {}/SWAM/examples/sample/Cells_EBV-transformed_lymphocytes_Analysis.chr22.expr.txt \
---geno {}/SWAM/examples/sample/genotypes \
---PrediXcan-path {prediXcan-path}/PrediXcan.py \
---num-cpu 44 \
---out {}/SWAM/examples/lcl
-
+--expr ${SWAMDIR}/examples/sample/Cells_EBV-transformed_lymphocytes_Analysis.chr22.expr.txt \
+--geno ${SWAMDIR}/examples/sample/genotypes \
+--PrediXcan-path ${PRDXDIR}/PrediXcan.py \
+--num-cpu 4 \
+--out ${SWAMDIR}/examples/lcl
 ```
 * To run SWAM, either --directory or --index file must be specified (either are fine)
 * The file format for the index file can be examined in the output {}/SWAM/examples/lcl/index.txt, and contains two columns: first column is the name of each tissue, and second column is the file path of its corresponding prediction model
