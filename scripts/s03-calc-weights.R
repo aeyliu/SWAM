@@ -202,7 +202,7 @@ calc.tissue.values = function(expr.pred,expr.target)
 tissue.values = vector(mode="list",length=length(tissue.names))
 for(i in 1:length(tissue.names))
 {
- print(paste("Processing... ", i, " of ", length(tissue.names),sep=""))
+ #print(paste("Processing... ", i, " of ", length(tissue.names),sep=""))
  tissue.values[[i]] = calc.tissue.values(predicted.expression[[i]],target.final)
 }
 
@@ -321,13 +321,13 @@ calc.gene.weights2 = function(gene="",values.list,target,index=NULL,diag.val=0,t
 
 target.weights = matrix(nrow = dim(tissue.values[[1]])[1], ncol = length(tissue.values))
 
-#now do calculate the weights for each gene
+#calculate the weights for each gene
 for(i in 1:dim(tissue.values[[1]])[1])
 {
- if(i %% 1000 == 0)
- {
-  print(paste("Processing... ", i, " of ", dim(tissue.values[[1]])[1],sep=""))
- }
+ #if(i %% 1000 == 0)
+ #{
+  #print(paste("Processing... ", i, " of ", dim(tissue.values[[1]])[1],sep=""))
+ #}
  target.weights[i,] = calc.gene.weights2(values.list=tissue.values,target=target.final,index=i,diag.val=3,target.index=target.index)
 }
 

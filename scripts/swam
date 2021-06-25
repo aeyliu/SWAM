@@ -96,7 +96,7 @@ print "$size\n";
 unless ( -s $indexf ) {
     if( -s $directory ) { #if index file is not specified, but directory is given, generate index file
         &forkExecWait("perl $FindBin::Bin/s01-generate-index.pl $directory $outDir", 
-		"\n=======================================================\n***** STEP 1: Generating index file$outDir/index.txt");
+		"\n=======================================================\n***** STEP 0: Generating index file$outDir/index.txt");
 	$indexf = "$outDir/index.txt";
     }
     unless ( -s $directory ) {
@@ -106,42 +106,32 @@ unless ( -s $indexf ) {
 }
 
 #call prediXcan from index file
-&forkExecWait("awk \'{print \"--weights \"\$2\" --output_dir $outDir/intermediate/\"\$1\ }\' $indexf | xargs -I {} -P $parallel sh -c \"$prediXcanPath --predict --dosages $targetGeno --samples $targetGeno/samples.txt {} --linear\" ", "\n======================================================\n***** STEP 2A: Running PrediXcan for each tissue...\n"); 
+&forkExecWait("awk \'{print \"--weights \"\$2\" --output_dir $outDir/intermediate/\"\$1\ }\' $indexf | xargs -I {} -P $parallel sh -c \"$prediXcanPath --predict --dosages $targetGeno --samples $targetGeno/samples.txt {} --linear\" ", "\n======================================================\n***** STEP 1A: Running PrediXcan for each tissue...\n"); 
 
 #extract information about prediction models and save for R to read
-&forkExecWait("$FindBin::Bin/s02-dump-information.pl $indexf $sqlite3Path $outDir/info","\n======================================================\n***** STEP 2B: Converting the output from PrediXcan");
+&forkExecWait("$FindBin::Bin/s02-dump-information.pl $indexf $sqlite3Path $outDir/info","\n======================================================\n***** STEP 1B: Converting the output from PrediXcan");
 
-#extract weights
-#&forkExecWait("awk '{print \$2\"* \\\\\\047SELECT rsid, gene, weight, ref_allele, eff_allele from weights\\\\\\047 > $outDir/info/\"\$1\".weights.dump \"}' $indexf | xargs -I {} sh -c \"$sqlite3Path {} \" ");
-
-#extract extra information
-#&forkExecWait("awk '{print \$2\"* \\\\\\047SELECT gene, genename, n\\\\.snps\\\\.in\\\\.model from extra\\\\\\047 > $outDir/info/\"\$1\".extra.dump \"}' $indexf | xargs -I {} sh -c \"$sqlite3Path {} \" ");
-
-#check if column re-ordering is needed
-#if(-s $formatf) {
-#    &forkExecWait("perl $FindBin::Bin/u01-convert-db.pl $formatf $outDir/info $indexf");
-#}
 
 #build ensg/gene name map
 
 #R calculates the weights based on the measured expression and predicted expression levels
 
-&forkExecWait("Rscript $FindBin::Bin/s03-calc-weights.R $targetExpr $outDir/intermediate/ $targetName $outDir/info/ $indexf $outDir/model/swam.weights.txt $outDir/ensg.map.txt", "\n======================================================\n***** STEP 3: Calculating SWAM weights..");
+&forkExecWait("Rscript $FindBin::Bin/s03-calc-weights.R $targetExpr $outDir/intermediate/ $targetName $outDir/info/ $indexf $outDir/model/swam.weights.txt $outDir/ensg.map.txt", "\n======================================================\n***** STEP 2: Calculating SWAM weights..");
 
 
-&forkExecWait("perl $FindBin::Bin/s04a-generate-tables.pl $outDir/model/swam.weights.txt $indexf $outDir/info $outDir/ensg.map.txt $outDir/model/swam.cv","\n======================================================\n***** STEP 4A : Running cross-validation.");
-&forkExecWait("perl $FindBin::Bin/s04b-generate-db-script.pl $outDir/model/swam.cv $outDir/model/swam.cv.weights $FindBin::Bin/sql-template.txt","**** STEP 4B : Writing sqlit3 database");
-&forkExecWait("$sqlite3Path -init $outDir/model/swam.cv.weights.sql $outDir/model/swam.cv.weights.db \"\"", "\n======================================================\n***** STEP 4C : Explain a little bit");
-&forkExecWait("$sqlite3Path $outDir/model/swam.cv.weights.db* \'SELECT * from weights\' > $outDir/model/swam.cv.weights.dump","\n======================================================\n***** STEP 4D : Exporting sqlite3 table into text file");
+&forkExecWait("perl $FindBin::Bin/s04a-generate-tables.pl $outDir/model/swam.weights.txt $indexf $outDir/info $outDir/ensg.map.txt $outDir/model/swam.cv","\n======================================================\n***** STEP 3A : Generating sqlite3 tables");
+&forkExecWait("perl $FindBin::Bin/s04b-generate-db-script.pl $outDir/model/swam.cv $outDir/model/swam.cv.weights $FindBin::Bin/sql-template.txt","**** STEP 3B : Writing sqlite3 template");
+&forkExecWait("$sqlite3Path -init $outDir/model/swam.cv.weights.sql $outDir/model/swam.cv.weights.db \"\"", "\n======================================================\n***** STEP 3C : Creating sqlite3 database");
+&forkExecWait("$sqlite3Path $outDir/model/swam.cv.weights.db* \'SELECT * from weights\' > $outDir/model/swam.cv.weights.dump","\n======================================================\n***** STEP 3D : Exporting sqlite3 tables into text files");
 
 if($calCov eq 1) {
-    &forkExecWait("seq 1 22 | xargs -I {} -P 22 bash -c \"perl $FindBin::Bin/s05-cal-cov.pl $outDir/model/swam.cv.weights.dump $targetGeno {} $outDir/cov/cov{}.txt\" ", "\n======================================================\n***** STEP 5A : Calculating covariance for MetaXcan");
-    &forkExecWait("gzip -r $outDir/cov", "\n======================================================\n***** STEP 5B : Compressing the covariance files");
+    &forkExecWait("seq 1 22 | xargs -I {} -P 22 bash -c \"perl $FindBin::Bin/s05-cal-cov.pl $outDir/model/swam.cv.weights.dump $targetGeno {} $outDir/cov/cov{}.txt\" ", "\n======================================================\n***** STEP 4A  : (Optional) Calculating covariance for MetaXcan");
+    &forkExecWait("gzip -r $outDir/cov", "\n======================================================\n***** STEP 4B : (Optional) Compressing the covariance files");
 }
 
 #cleanup files
 unless($keep eq 1) {
-    &forkExecWait("rm -f -r $outDir/info", "\n======================================================\n***** Step 6A : Cleaning up info directory");
+    &forkExecWait("rm -f -r $outDir/info", "\n======================================================\n***** Step 5 : (Optional) Cleaning up info directory");
     &forkExecWait("rm -f -r $outDir/intermediate");
     &forkExecWait("rm -f -r $outDir/model/swam.cv.extra.txt");
     &forkExecWait("rm -f -r $outDir/model/swam.cv.weights.dump");
