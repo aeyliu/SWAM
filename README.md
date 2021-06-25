@@ -119,6 +119,8 @@ Additional options:
   Calculate covariate matrix, which is needed for metaXcan
 ## Citing SWAM
 
-* Our paper is currently in pre-print and can be found at: [Link](https://www.biorxiv.org/content/10.1101/2021.05.04.442575v1)
+* Our paper is currently in pre-print and can be found at:
+
+ **Liu A., Kang H.M., Meta-imputation of transcriptome from genotypes across multiple datasets using summary-level data. bioRxiv, 442575.** [Link](https://www.biorxiv.org/content/10.1101/2021.05.04.442575v1)
 
 
