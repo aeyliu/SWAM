@@ -10,10 +10,12 @@ SWAM is an gene expression imputation method which combines information from mul
 
 To use SWAM, you need to have the following tools installed in your system.
 * `perl` (version 5 or later recommended)
+* `python` (version 2.7 is recommended. `numpy` package is also required)
 * `R` (version 3.4 or later recommended)
 * `htslib` : The binary `tabix` should be include in your `$PATH`. Type `tabix` in your command line to check.
-* `prediXcan` : The software `prediXcan` can be downloaded from https://github.com/hakyimlab/PrediXcan
-* `sqlite` : (version 3 or later recommended)
+* `sqlite3` : (3.22 or later recommended)
+
+(The software `prediXcan`, which is currently deprecated, was originally downloaded from https://github.com/hakyimlab/PrediXcan and copied in this repository)
 
 
 ### Cloning the repository
@@ -59,14 +61,13 @@ ENSG00000069998.8     -1.35973738393861      0.640666889919105      -1.008856461
 ```
 ## Modify these environment variables to conform your settings
 export SWAMDIR=/path/to/SWAM
-export PRDXDIR=/path/to/PrediXcan
 ## Run this command to run example code
 ${SWAMDIR}/scripts/swam \
 --directory ${SWAMDIR}/examples/sample/GTEx-V6p-1KG-2016-11-16 \
 --name TW_Cells_EBV-transformed_lymphocytes_0.5_1KG \
 --expr ${SWAMDIR}/examples/sample/Cells_EBV-transformed_lymphocytes_Analysis.chr22.expr.txt \
 --geno ${SWAMDIR}/examples/sample/genotypes \
---PrediXcan-path ${PRDXDIR}/PrediXcan.py \
+--PrediXcan-path ${SWAMDIR}/scripts/PrediXcan.py \
 --num-cpu 4 \
 --out ${SWAMDIR}/examples/lcl
 ```
