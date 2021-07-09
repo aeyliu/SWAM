@@ -128,7 +128,7 @@ ${SWAMDIR}/scripts/swam
 
 ERROR: Missing required arguments. Please see the usage below
 Usage:
-    /net/fantasia/home/hmkang/code/git/SWAM/scripts/swam [options]
+    /path/to/SWAM/scripts/swam [options]
 
      General Options:
       -help             Print out brief help message [OFF]
@@ -159,7 +159,7 @@ The full command line documentation of SWAM can be obtained using `--help` optio
 ${SWAMDIR}/scripts/swam --help
 
 Usage:
-    /net/fantasia/home/hmkang/code/git/SWAM/scripts/swam [options]
+    /path/to/SWAM/scripts/swam [options]
 
      General Options:
       -help             Print out brief help message [ON]
