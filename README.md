@@ -123,7 +123,7 @@ Additional options:
 
 A brief usage on how to use SWAM can be obtained by running it without any arguments.
 
-```sh
+```
 ${SWAMDIR}/scripts/swam
 
 ERROR: Missing required arguments. Please see the usage below
@@ -155,7 +155,7 @@ Usage:
 
 The full command line documentation of SWAM can be obtained using `--help` option as follows
 
-```sh
+```
 ${SWAMDIR}/scripts/swam --help
 
 Usage:
