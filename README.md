@@ -118,6 +118,126 @@ Additional options:
 * _--cal-cov_
 
   Calculate covariate matrix, which is needed for metaXcan
+
+## Command-line documentation of SWAM
+
+A brief usage on how to use SWAM can be obtained by running it without any arguments.
+
+```sh
+${SWAMDIR}/scripts/swam
+
+ERROR: Missing required arguments. Please see the usage below
+Usage:
+    /net/fantasia/home/hmkang/code/git/SWAM/scripts/swam [options]
+
+     General Options:
+      -help             Print out brief help message [OFF]
+      -man              Print the full documentation in man page style [OFF]
+
+     Required Options:
+      -index STR        Index file containing the list of tissue-specific training models. Each line should have [TISSUE_NAME] [Path to PredictDB-formatted file []
+      -directory STR    Directory containing all prediction models to be used  by SWAM. If index file is not specified, will be generated from directory []
+      -name STR         Name of the target tissue. Must be included in the index file []
+      -expr STR         Measured expression data for the target tissue (in PrediXcan format). First line has sample IDs, and from the second line [GENE_NAME] [EXPR_FOR_SAMPLE_1] [EXPR_FOR_SAMPLE_2] ... []
+      -geno STR         Genotype files in gzipped dosage format in PrediXcan format []
+      -out STR          Prefix of output files []
+
+     Additional Options:
+      -num-cpu STR      Assign number of CPUs for parallelization [1]
+      -PrediXcan-path STRPath to PrediXcan software tool [PrediXcan.py]
+      -Rscript-path STR Path to Rscript tool [Rscript]
+      -sqlite3-path STR Path to sqlite3 tool [sqlite3]
+      -tabix-path STR   Path to tabix tool [tabix]
+      -keep-files       Option to keep intermediate files [OFF]
+      -cal-cov          Calculate covariate matrix [OFF]
+```
+
+
+The full command line documentation of SWAM can be obtained using `--help` option as follows
+
+```sh
+${SWAMDIR}/scripts/swam --help
+
+Usage:
+    /net/fantasia/home/hmkang/code/git/SWAM/scripts/swam [options]
+
+     General Options:
+      -help             Print out brief help message [ON]
+      -man              Print the full documentation in man page style [OFF]
+
+     Required Options:
+      -index STR        Index file containing the list of tissue-specific training models. Each line should have [TISSUE_NAME] [Path to PredictDB-formatted file []
+      -directory STR    Directory containing all prediction models to be used  by SWAM. If index file is not specified, will be generated from directory []
+      -name STR         Name of the target tissue. Must be included in the index file []
+      -expr STR         Measured expression data for the target tissue (in PrediXcan format). First line has sample IDs, and from the second line [GENE_NAME] [EXPR_FOR_SAMPLE_1] [EXPR_FOR_SAMPLE_2] ... []
+      -geno STR         Genotype files in gzipped dosage format in PrediXcan format []
+      -out STR          Prefix of output files []
+
+     Additional Options:
+      -num-cpu STR      Assign number of CPUs for parallelization [1]
+      -PrediXcan-path STRPath to PrediXcan software tool [PrediXcan.py]
+      -Rscript-path STR Path to Rscript tool [Rscript]
+      -sqlite3-path STR Path to sqlite3 tool [sqlite3]
+      -tabix-path STR   Path to tabix tool [tabix]
+      -keep-files       Option to keep intermediate files [OFF]
+      -cal-cov          Calculate covariate matrix [OFF]
+
+Options:
+    -help   Print a brief help message and exits
+
+    -man    Prints the manual page and exits
+
+    --help [ON]
+            Print a help message and exits
+
+    --man [OFF]
+            Prints a manual page and exits upon typing 'q'
+
+    --index STR []
+            Index file containing the list of tissue-specific training
+            models. Each line should have [TISSUE_NAME] [Path to
+            PredictDB-formatted file
+
+    --directory STR []
+            Directory containing all prediction models to be used by SWAM.
+            If index file is not specified, will be generated from directory
+
+    --name STR []
+            Name of the target tissue. Must be included in the index file
+
+    --expr STR []
+            Measured expression data for the target tissue (in PrediXcan
+            format). First line has sample IDs, and from the second line
+            [GENE_NAME] [EXPR_FOR_SAMPLE_1] [EXPR_FOR_SAMPLE_2] ...
+
+    --geno STR []
+            Genotype files in gzipped dosage format in PrediXcan format
+
+    --out STR []
+            Prefix of output files
+
+    --num-cpu STR [1]
+            Assign number of CPUs for parallelization
+
+    --PrediXcan-path STR [PrediXcan.py]
+            Path to PrediXcan software tool
+
+    --Rscript-path STR [Rscript]
+            Path to Rscript tool
+
+    --sqlite3-path STR [sqlite3]
+            Path to sqlite3 tool
+
+    --tabix-path STR [tabix]
+            Path to tabix tool
+
+    --keep-files [OFF]
+            Option to keep intermediate files
+
+    --cal-cov [OFF]
+            Calculate covariate matrix
+```
+
 ## Citing SWAM
 
 * Our paper is currently in pre-print and can be found at:
