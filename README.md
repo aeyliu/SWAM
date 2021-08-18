@@ -121,7 +121,7 @@ Additional options:
 * _--cal-cov_
 
   Use cross-validation to determine tuning parameter
-* _--cv
+* _--cv_
 
 
 ## Command-line documentation of SWAM
