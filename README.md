@@ -10,10 +10,12 @@ SWAM is an gene expression imputation method which combines information from mul
 
 To use SWAM, you need to have the following tools installed in your system.
 * `perl` (version 5 or later recommended)
+* `python` (version 2.7 is recommended. `numpy` package is also required)
 * `R` (version 3.4 or later recommended)
 * `htslib` : The binary `tabix` should be include in your `$PATH`. Type `tabix` in your command line to check.
-* `prediXcan` : The software `prediXcan` can be downloaded from https://github.com/hakyimlab/PrediXcan
-* `sqlite` : (version 3 or later recommended)
+* `sqlite3` : (3.22 or later recommended)
+
+(The software `prediXcan`, which is currently deprecated, was originally downloaded from https://github.com/hakyimlab/PrediXcan and copied in this repository)
 
 
 ### Cloning the repository
@@ -59,14 +61,13 @@ ENSG00000069998.8     -1.35973738393861      0.640666889919105      -1.008856461
 ```
 ## Modify these environment variables to conform your settings
 export SWAMDIR=/path/to/SWAM
-export PRDXDIR=/path/to/PrediXcan
 ## Run this command to run example code
 ${SWAMDIR}/scripts/swam \
 --directory ${SWAMDIR}/examples/sample/GTEx-V6p-1KG-2016-11-16 \
 --name TW_Cells_EBV-transformed_lymphocytes_0.5_1KG \
 --expr ${SWAMDIR}/examples/sample/Cells_EBV-transformed_lymphocytes_Analysis.chr22.expr.txt \
 --geno ${SWAMDIR}/examples/sample/genotypes \
---PrediXcan-path ${PRDXDIR}/PrediXcan.py \
+--PrediXcan-path ${SWAMDIR}/scripts/PrediXcan.py \
 --num-cpu 4 \
 --out ${SWAMDIR}/examples/lcl
 ```
@@ -117,8 +118,130 @@ Additional options:
 * _--cal-cov_
 
   Calculate covariate matrix, which is needed for metaXcan
+
+## Command-line documentation of SWAM
+
+A brief usage on how to use SWAM can be obtained by running it without any arguments.
+
+```
+${SWAMDIR}/scripts/swam
+
+ERROR: Missing required arguments. Please see the usage below
+Usage:
+    /path/to/SWAM/scripts/swam [options]
+
+     General Options:
+      -help             Print out brief help message [OFF]
+      -man              Print the full documentation in man page style [OFF]
+
+     Required Options:
+      -index STR        Index file containing the list of tissue-specific training models. Each line should have [TISSUE_NAME] [Path to PredictDB-formatted file []
+      -directory STR    Directory containing all prediction models to be used  by SWAM. If index file is not specified, will be generated from directory []
+      -name STR         Name of the target tissue. Must be included in the index file []
+      -expr STR         Measured expression data for the target tissue (in PrediXcan format). First line has sample IDs, and from the second line [GENE_NAME] [EXPR_FOR_SAMPLE_1] [EXPR_FOR_SAMPLE_2] ... []
+      -geno STR         Genotype files in gzipped dosage format in PrediXcan format []
+      -out STR          Prefix of output files []
+
+     Additional Options:
+      -num-cpu STR      Assign number of CPUs for parallelization [1]
+      -PrediXcan-path STRPath to PrediXcan software tool [PrediXcan.py]
+      -Rscript-path STR Path to Rscript tool [Rscript]
+      -sqlite3-path STR Path to sqlite3 tool [sqlite3]
+      -tabix-path STR   Path to tabix tool [tabix]
+      -keep-files       Option to keep intermediate files [OFF]
+      -cal-cov          Calculate covariate matrix [OFF]
+```
+
+
+The full command line documentation of SWAM can be obtained using `--help` option as follows
+
+```
+${SWAMDIR}/scripts/swam --help
+
+Usage:
+    /path/to/SWAM/scripts/swam [options]
+
+     General Options:
+      -help             Print out brief help message [ON]
+      -man              Print the full documentation in man page style [OFF]
+
+     Required Options:
+      -index STR        Index file containing the list of tissue-specific training models. Each line should have [TISSUE_NAME] [Path to PredictDB-formatted file []
+      -directory STR    Directory containing all prediction models to be used  by SWAM. If index file is not specified, will be generated from directory []
+      -name STR         Name of the target tissue. Must be included in the index file []
+      -expr STR         Measured expression data for the target tissue (in PrediXcan format). First line has sample IDs, and from the second line [GENE_NAME] [EXPR_FOR_SAMPLE_1] [EXPR_FOR_SAMPLE_2] ... []
+      -geno STR         Genotype files in gzipped dosage format in PrediXcan format []
+      -out STR          Prefix of output files []
+
+     Additional Options:
+      -num-cpu STR      Assign number of CPUs for parallelization [1]
+      -PrediXcan-path STRPath to PrediXcan software tool [PrediXcan.py]
+      -Rscript-path STR Path to Rscript tool [Rscript]
+      -sqlite3-path STR Path to sqlite3 tool [sqlite3]
+      -tabix-path STR   Path to tabix tool [tabix]
+      -keep-files       Option to keep intermediate files [OFF]
+      -cal-cov          Calculate covariate matrix [OFF]
+
+Options:
+    -help   Print a brief help message and exits
+
+    -man    Prints the manual page and exits
+
+    --help [ON]
+            Print a help message and exits
+
+    --man [OFF]
+            Prints a manual page and exits upon typing 'q'
+
+    --index STR []
+            Index file containing the list of tissue-specific training
+            models. Each line should have [TISSUE_NAME] [Path to
+            PredictDB-formatted file
+
+    --directory STR []
+            Directory containing all prediction models to be used by SWAM.
+            If index file is not specified, will be generated from directory
+
+    --name STR []
+            Name of the target tissue. Must be included in the index file
+
+    --expr STR []
+            Measured expression data for the target tissue (in PrediXcan
+            format). First line has sample IDs, and from the second line
+            [GENE_NAME] [EXPR_FOR_SAMPLE_1] [EXPR_FOR_SAMPLE_2] ...
+
+    --geno STR []
+            Genotype files in gzipped dosage format in PrediXcan format
+
+    --out STR []
+            Prefix of output files
+
+    --num-cpu STR [1]
+            Assign number of CPUs for parallelization
+
+    --PrediXcan-path STR [PrediXcan.py]
+            Path to PrediXcan software tool
+
+    --Rscript-path STR [Rscript]
+            Path to Rscript tool
+
+    --sqlite3-path STR [sqlite3]
+            Path to sqlite3 tool
+
+    --tabix-path STR [tabix]
+            Path to tabix tool
+
+    --keep-files [OFF]
+            Option to keep intermediate files
+
+    --cal-cov [OFF]
+            Calculate covariate matrix
+```
+
 ## Citing SWAM
 
-* Our paper is currently in pre-print and can be found at: [Link](https://www.biorxiv.org/content/10.1101/2021.05.04.442575v1)
+* Our paper is currently in pre-print and can be found at:
+
+ **Liu A., Kang H.M., Meta-imputation of transcriptome from genotypes across multiple datasets using summary-level data. bioRxiv, 442575.** [Link](https://www.biorxiv.org/content/10.1101/2021.05.04.442575v1)
 
 
