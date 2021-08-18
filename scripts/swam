@@ -20,6 +20,7 @@ my $tabixPath = "tabix";
 my $keep = "";
 my $parallel = 1;
 my $calCov = "";
+my $runCV = "";
 #my $formatf = "";
 
 wGetOptions(
@@ -39,6 +40,7 @@ wGetOptions(
     "tabix-path=s",[\$tabixPath,"Path to tabix tool"],
     "keep-files",[\$keep,"Option to keep intermediate files"],
     "cal-cov",[\$calCov,"Calculate covariate matrix"],
+    "cv",[\$runCV,"Use cross-validated lambda (tuning parameter)"],
     ) || wpod2usage(2);
 
 
@@ -116,8 +118,14 @@ unless ( -s $indexf ) {
 
 #R calculates the weights based on the measured expression and predicted expression levels
 
-&forkExecWait("Rscript $FindBin::Bin/s03-calc-weights.R $targetExpr $outDir/intermediate/ $targetName $outDir/info/ $indexf $outDir/model/swam.weights.txt $outDir/ensg.map.txt", "\n======================================================\n***** STEP 2: Calculating SWAM weights..");
 
+if($runCV ne q) {
+    &forkExecWait("Rscript $FindBin::Bin/s03-calc-weights.R $targetExpr $outDir/intermediate/ $targetName $outDir/info/ $indexf $outDir/model/swam.weights.txt $outDir/ensg.map.txt", "\n======================================================\n***** STEP 2: Calculating SWAM weights..");
+}
+
+if($runCV eq 1) {
+    &forkExecWait("Rscript $FindBin::Bin/s03-calc-weights-cv.R $targetExpr $outDir/intermediate/ $targetName $outDir/info/ $indexf $outDir/model/swam.weights.txt $outDir/ensg.map.txt", "\n======================================================\n***** STEP 2: Calculating SWAM weights..");
+}
 
 &forkExecWait("perl $FindBin::Bin/s04a-generate-tables.pl $outDir/model/swam.weights.txt $indexf $outDir/info $outDir/ensg.map.txt $outDir/model/swam.cv","\n======================================================\n***** STEP 3A : Generating sqlite3 tables");
 &forkExecWait("perl $FindBin::Bin/s04b-generate-db-script.pl $outDir/model/swam.cv $outDir/model/swam.cv.weights $FindBin::Bin/sql-template.txt","**** STEP 3B : Writing sqlite3 template");
