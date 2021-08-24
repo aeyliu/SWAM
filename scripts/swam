@@ -119,7 +119,7 @@ unless ( -s $indexf ) {
 #R calculates the weights based on the measured expression and predicted expression levels
 
 
-if($runCV ne q) {
+if($runCV ne 1) {
     &forkExecWait("Rscript $FindBin::Bin/s03-calc-weights.R $targetExpr $outDir/intermediate/ $targetName $outDir/info/ $indexf $outDir/model/swam.weights.txt $outDir/ensg.map.txt", "\n======================================================\n***** STEP 2: Calculating SWAM weights..");
 }
 
