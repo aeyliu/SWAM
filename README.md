@@ -115,9 +115,14 @@ Additional options:
 * _--keep-files_
 
   Option to keep intermediate files
-* _--cal-cov_
+* _--keep-files_
 
   Calculate covariate matrix, which is needed for metaXcan
+* _--cal-cov_
+
+  Use cross-validation to determine tuning parameter
+* _--cv_
+
 
 ## Command-line documentation of SWAM
 
@@ -150,6 +155,7 @@ Usage:
       -tabix-path STR   Path to tabix tool [tabix]
       -keep-files       Option to keep intermediate files [OFF]
       -cal-cov          Calculate covariate matrix [OFF]
+      -cv               Use cross-validation to determine tuning parameter [OFF]
 ```
 
 
@@ -181,6 +187,7 @@ Usage:
       -tabix-path STR   Path to tabix tool [tabix]
       -keep-files       Option to keep intermediate files [OFF]
       -cal-cov          Calculate covariate matrix [OFF]
+      -cv               Use cross-validation to determine tuning parameter [OFF]
 
 Options:
     -help   Print a brief help message and exits
@@ -236,6 +243,9 @@ Options:
 
     --cal-cov [OFF]
             Calculate covariate matrix
+     
+    --cv [OFF]
+             Use cross-validation to determine tuning parameter
 ```
 
 ## Citing SWAM
