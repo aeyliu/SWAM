@@ -248,10 +248,12 @@ Options:
              Use cross-validation to determine tuning parameter
 ```
 
+## Download SWAM model trained from GTEx data
+* You can download SWAM models trained from GTEx v6 and v8 data at https://doi.org/10.5281/zenodo.5866500
+
 ## Citing SWAM
 
-* Our paper is currently in pre-print and can be found at:
+* Our SWAM paper is published at PLoS Genetics. Please use the following citation:
 
- **Liu A., Kang H.M., Meta-imputation of transcriptome from genotypes across multiple datasets using summary-level data. bioRxiv, 442575.** [Link](https://www.biorxiv.org/content/10.1101/2021.05.04.442575v1)
-
+Liu AE, Kang HM. Meta-imputation of transcriptome from genotypes across multiple datasets by leveraging publicly available summary-level data. PLoS Genetics. 2022 Jan 31;18(1):e1009571. https://doi.org/10.1371/journal.pgen.1009571
 
