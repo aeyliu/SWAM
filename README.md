@@ -255,5 +255,5 @@ Options:
 
 * Our SWAM paper is published at PLoS Genetics. Please use the following citation:
 
-Liu AE, Kang HM. Meta-imputation of transcriptome from genotypes across multiple datasets by leveraging publicly available summary-level data. PLoS Genetics. 2022 Jan 31;18(1):e1009571. https://doi.org/10.1371/journal.pgen.1009571
+> Liu AE, Kang HM. Meta-imputation of transcriptome from genotypes across multiple datasets by leveraging publicly available summary-level data. PLoS Genetics. 2022 Jan 31;18(1):e1009571. https://doi.org/10.1371/journal.pgen.1009571
 
